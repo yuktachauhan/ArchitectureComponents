@@ -26,7 +26,7 @@ public interface NoteDao {
 
     @Query("SELECT * FROM notes_table ORDER BY priority_column DESC") //* is used to select from all tables
 
-    LiveData<List<Note>>  getAllNotes(); //this method is used to represent the the data in recyclerview
-                                         //livedata is used to observe the data like if ther is any change in note_table,
+    LiveData<List<Note>>  getAllNotes(); //this method is used to represent the the data in recycler view
+                                         //livedata is used to observe the data like if there is any change in note_table,
                                           //then this list will be automatically updated and our activity will be notified
 }

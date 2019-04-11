@@ -7,7 +7,8 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity(tableName = "notes_table")  //by default table name will be Note(i.e. class name)
 public class Note {
 
-    //room will automatically generate columns for title,description ,etc.
+    //room will automatically generate columns for title,description ,etc i.e. for member variables.
+
     @PrimaryKey(autoGenerate = true)  //ids will be automatically generated
     private int id;      //uniquely identify each entry
 
