@@ -21,6 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
  public static final int ADD_NOTES_REQUEST=1;
+ public static final int EDIT_NOTES_REQUEST=2;
     private NoteViewModel noteViewModel;
 
     @Override
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,AddNoteActivity.class);
+                Intent intent = new Intent(MainActivity.this,AddEditNoteActivity.class);
                 startActivityForResult(intent,ADD_NOTES_REQUEST);
             }
         });
@@ -64,22 +65,51 @@ public class MainActivity extends AppCompatActivity {
                  Toast.makeText(MainActivity.this,"Note Deleted",Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(recyclerView);
+
+        adapter.setOnItemClickListener(new NoteAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(Note note) {
+                Intent intent = new Intent(MainActivity.this,AddEditNoteActivity.class);
+                //we need primary key because room needs key to identify which note entry to update
+                intent.putExtra(AddEditNoteActivity.EXTRA_ID,note.getId());
+                intent.putExtra(AddEditNoteActivity.EXTRA_TITLE,note.getTitle());
+                intent.putExtra(AddEditNoteActivity.EXTRA_DESCRIPTION,note.getDescription());
+                intent.putExtra(AddEditNoteActivity.EXTRA_PRIORITY,note.getPriority());
+                startActivityForResult(intent,EDIT_NOTES_REQUEST);
+            }
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode,int resultCode,Intent intent){
         super.onActivityResult(requestCode,resultCode,intent);
-        if(requestCode==ADD_NOTES_REQUEST){
-            if(resultCode==RESULT_OK){
-                String title =intent.getStringExtra(AddNoteActivity.EXTRA_TITLE);
-                String description =intent.getStringExtra(AddNoteActivity.EXTRA_DESCRIPTION);
-                int priority = intent.getIntExtra(AddNoteActivity.EXTRA_PRIORITY,1);
+        if(requestCode==ADD_NOTES_REQUEST && resultCode==RESULT_OK){
+                String title =intent.getStringExtra(AddEditNoteActivity.EXTRA_TITLE);
+                String description =intent.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
+                int priority = intent.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY,1);
 
                 Note note = new Note(title,description,priority);
                 noteViewModel.insert(note);
                 Toast.makeText(MainActivity.this,"Note Added",Toast.LENGTH_SHORT).show();
+
+        }else if(requestCode==EDIT_NOTES_REQUEST && resultCode==RESULT_OK){
+
+            int id =intent.getIntExtra(AddEditNoteActivity.EXTRA_ID,-1);
+            if(id==-1){
+                Toast.makeText(MainActivity.this,"Note can not be updated",Toast.LENGTH_SHORT).show();
+                return;
             }
-        }else{
+            String title =intent.getStringExtra(AddEditNoteActivity.EXTRA_TITLE);
+            String description =intent.getStringExtra(AddEditNoteActivity.EXTRA_DESCRIPTION);
+            int priority = intent.getIntExtra(AddEditNoteActivity.EXTRA_PRIORITY,1);
+
+            Note note = new Note(title,description,priority);
+            note.setId(id);
+            noteViewModel.update(note);
+            Toast.makeText(MainActivity.this,"Note Updated",Toast.LENGTH_SHORT).show();
+        }
+
+        else{
             Toast.makeText(MainActivity.this,"Note not Added",Toast.LENGTH_SHORT).show();
         }
     }

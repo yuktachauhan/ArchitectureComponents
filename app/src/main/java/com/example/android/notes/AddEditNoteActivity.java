@@ -10,7 +10,8 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
-public class AddNoteActivity extends AppCompatActivity {
+public class AddEditNoteActivity extends AppCompatActivity {
+    public static final String EXTRA_ID="com.example.android.notes.EXTRA_ID";
     public static final String EXTRA_TITLE="com.example.android.notes.EXTRA_TITLE";
     public static final String EXTRA_DESCRIPTION="com.example.android.notes.EXTRA_DESCRIPTION";
     public static final String EXTRA_PRIORITY="com.example.android.notes.EXTRA_PRIORITY";
@@ -29,8 +30,17 @@ public class AddNoteActivity extends AppCompatActivity {
         priorityPicker.setMaxValue(10);
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-        setTitle("Add Notes");
 
+        Intent intent =getIntent();
+        if(intent.hasExtra(EXTRA_ID)){
+            setTitle("Edit Notes");
+            title.setText(intent.getStringExtra(EXTRA_TITLE));
+            description.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
+            priorityPicker.setValue(intent.getIntExtra(EXTRA_PRIORITY,1));
+
+        }else {
+            setTitle("Add Notes");
+        }
     }
 
     public void saveNotes(){
@@ -39,7 +49,7 @@ public class AddNoteActivity extends AppCompatActivity {
             int priority =priorityPicker.getValue();
 
             if(noteTitle.isEmpty() || noteDescription.isEmpty()){
-                Toast.makeText(AddNoteActivity.this,"Please insert both notes and description",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddEditNoteActivity.this,"Please insert both notes and description",Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -47,6 +57,12 @@ public class AddNoteActivity extends AppCompatActivity {
             intent.putExtra(EXTRA_TITLE,noteTitle);
             intent.putExtra(EXTRA_DESCRIPTION,noteDescription);
             intent.putExtra(EXTRA_PRIORITY,priority);
+            //for updating or for editing the notes
+            int id = getIntent().getIntExtra(EXTRA_ID,-1);
+            if(id!=-1){
+             //we want to send id in main activity only if we need to edit notes
+             intent.putExtra(EXTRA_ID,id);
+            }
             setResult(RESULT_OK,intent);
             finish();
     }
